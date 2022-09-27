@@ -1,94 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import List from './List';
-import Alert from './Alert';
-const getLocalStorage = () => {
-  let list = localStorage.getItem('list');
-  if (list) {
-    return (list = JSON.parse(localStorage.getItem('list')));
-  } else {
-    return [];
-  }
-};
+import React, { useState } from 'react';
+import data from './data';
+import SingleQuestion from './Question';
+import Add from './Add';
 function App() {
-  const [name, setName] = useState('');
-  const [list, setList] = useState(getLocalStorage());
-  const [isEditing, setIsEditing] = useState(false);
-  const [editID, setEditID] = useState(null);
-  const [alert, setAlert] = useState({ show: false, msg: '', type: '' });
+
+  const [questions, setQuestions] = useState(data);
+  const [addRecipe, setAddRecipe] = useState(false);
+  const [ingredientAmount, setIngredientAmount] = useState(0)
+  const [stepAmount, setStepAmount] = useState(0)
+
+  const addIngredientValue = () => {
+    setIngredientAmount(ingredientAmount + 1)
+  };
+
+  const addStepValue = () => {
+    setStepAmount(stepAmount + 1)
+  };
+
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name) {
-      showAlert(true, 'danger', 'please enter value');
-    } else if (name && isEditing) {
-      setList(
-        list.map((item) => {
-          if (item.id === editID) {
-            return { ...item, title: name };
-          }
-          return item;
-        })
-      );
-      setName('');
-      setEditID(null);
-      setIsEditing(false);
-      showAlert(true, 'success', 'value changed');
-    } else {
-      showAlert(true, 'success', 'item added to the list');
-      const newItem = { id: new Date().getTime().toString(), title: name };
+    e.preventDefault(e);
 
-      setList([...list, newItem]);
-      setName('');
-    }
   };
 
-  const showAlert = (show = false, type = '', msg = '') => {
-    setAlert({ show, type, msg });
-  };
-  const clearList = () => {
-    showAlert(true, 'danger', 'empty list');
-    setList([]);
-  };
-  const removeItem = (id) => {
-    showAlert(true, 'danger', 'item removed');
-    setList(list.filter((item) => item.id !== id));
-  };
-  const editItem = (id) => {
-    const specificItem = list.find((item) => item.id === id);
-    setIsEditing(true);
-    setEditID(id);
-    setName(specificItem.title);
-  };
-  useEffect(() => {
-    localStorage.setItem('list', JSON.stringify(list));
-  }, [list]);
   return (
-    <section className='section-center'>
-      <form className='grocery-form' onSubmit={handleSubmit}>
-        {alert.show && <Alert {...alert} removeAlert={showAlert} list={list} />}
-
-        <h3>grocery bud</h3>
-        <div className='form-control'>
-          <input
-            type='text'
-            className='grocery'
-            placeholder='e.g. eggs'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <button type='submit' className='submit-btn'>
-            {isEditing ? 'edit' : 'submit'}
-          </button>
+    <main>
+      <div className='container'>
+        <div className="top-content">
+        <h3>Recipes</h3>
+        <button className="add-btn" onClick={() => setAddRecipe(!addRecipe)}>Add Recipe</button>
         </div>
-      </form>
-      {list.length > 0 && (
-        <div className='grocery-container'>
-          <List items={list} removeItem={removeItem} editItem={editItem} />
-          <button className='clear-btn' onClick={clearList}>
-            clear items
-          </button>
-        </div>
-      )}
-    </section>
+        { addRecipe && <Add addIngredient={addIngredientValue} ingredientAmount={ingredientAmount} 
+                            addStep={addStepValue} stepAmount={stepAmount} onSubmit={handleSubmit}/> }
+        <section className='info'>
+          {questions.map((question) => {
+            return (
+              <SingleQuestion key={question.id} {...question}></SingleQuestion>
+            );
+          })}
+        </section>
+      </div>
+    </main>
   );
 }
 
