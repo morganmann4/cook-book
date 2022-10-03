@@ -9,30 +9,60 @@ function App() {
   const [addRecipe, setAddRecipe] = useState(false);
   const [ingredientAmount, setIngredientAmount] = useState(0)
   const [stepAmount, setStepAmount] = useState(0)
-  const [recipeList, setRecipeList] = useState([])
   const [newId, setNewID] = useState(0)
+  const [list, setList] = useState([])
+  const [display, setDisplay] = useState([])
+  // const [index, setIndex] = "1"
 
-  const addIngredientValue = () => {
-    setIngredientAmount(ingredientAmount + 1)
+  /* Ingredient List */
+  const [ingredientList, setIngredientList] = useState([{ ingredient: "" }]);
+  const [displayIngredientList, setDisplayIngredientList] = useState([])
+
+  const handleIngredientChange = (e, index) => {
+    const { name, value } = e.target;
+    const temp_list = [...ingredientList];
+    const ing = e.target;
+    temp_list[index][name] = value;
+    setIngredientList(temp_list);
+
   };
 
-  const addStepValue = () => {
-    setStepAmount(stepAmount + 1)
+  const handleIngredientRemove = (index) => {
+    const temp_list = [...ingredientList];
+    temp_list.splice(index, 1);
+    setIngredientList(temp_list);
   };
 
+  const handleIngredientAdd = () => {
+    setIngredientList([...ingredientList, { ingredient: "" }])
+  };
 
-  const handleRecipeSubmit = (recipeName, ingredientList, stepList) => {
-    // e.preventDefault(e);
-    console.log(recipeName, ingredientList, stepList)
-    const newItem = { id: new Date().getTime().toString(), title: recipeName, 
-      ingredients: ingredientList, steps: stepList, showInfo: false };
-    setRecipeList([...recipeList, newItem]);
-    setAddRecipe(false)
+  const handleDisplayItems = (displayList) => {
+    const display = []
+      displayList.map((singleIngredient, index) => (
+        setDisplay([...display, singleIngredient])
+      ))}
+  
+
+  const handleRecipeSubmit = (recipeName, displayIngredientList, stepList) => {
+    const ingredients = handleDisplayItems(displayIngredientList)
+    const newItem = { id: new Date().getTime().toString(), name: recipeName }
+    console.log(newItem)
+    console.log(displayIngredientList)
+    //   ingredients: ingredientList, steps: stepList, showInfo: false };
+    // setList([...list, {recipeName}]);
+
+    // const temp_index = list.length- 1
+    // const temp_recipe[temp_iindex][recipeName]
+    // setList([...list, {[temp_index], recipeName, ingredientList, stepList, showInfo:false}]);
+    // console.log(...list)
+    // setAddRecipe(false)
+    // setIngredientList([{ ingredient: "" }])
   };
 
   const changeShowInfo = (id, showInfo) =>{
-    setRecipeList(
-      recipeList.map((item) => {
+    setList(
+      list.map((item) => {
         if (item.id === id) {
           return { ...item, showInfo: !showInfo };
         }
@@ -49,13 +79,14 @@ function App() {
         <h1>Cook Book</h1>
         <button className="add-btn" onClick={() => setAddRecipe(!addRecipe)}>Add Recipe</button>
         </div>
-        { addRecipe && <Add addIngredient={addIngredientValue} ingredientAmount={ingredientAmount} 
-                            addStep={addStepValue} stepAmount={stepAmount} handleSubmit={handleRecipeSubmit}/> }
+        { addRecipe && <Add handleRecipeSubmit={handleRecipeSubmit} handleIngredientChange={handleIngredientChange}
+                        handleIngredientRemove={handleIngredientRemove} handleIngredientAdd={handleIngredientAdd} ingredientList={ingredientList}
+                        displayIngredientList={displayIngredientList}/> }
         <section className="recipe-list-container">
-        {recipeList.length < 1 ? <p>You dont have any recipes yet!</p> :
+        {list.length < 1 ? <p>You dont have any recipes yet!</p> :
         <div class="recipe-list-forum">
         <h2>Recipes</h2>
-        <List items={recipeList} changeShowInfo={changeShowInfo}/>
+        <List items={list} changeShowInfo={changeShowInfo}/>
         </div>}
         </section>
       </div>
